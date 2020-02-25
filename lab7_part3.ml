@@ -59,20 +59,26 @@ module IntListStack =
     type stack = int list
 
     (* empty -- An empty stack *)
-    let empty : stack = failwith "not implemented"
+    let empty : stack = []
 
     (* push i s -- Adds an integer element i to the top of stack s *)
-    let push (i : int) (s : stack) : stack = failwith "not implemented"
+    let push (i : int) (s : stack) : stack = i :: s
 
     (* top s -- Returns the value of the topmost element on stack s,
        raising the EmptyStack exception if there is no element to be
        returned. *)
-    let top (s : stack) : int = failwith "not implemented"
+    let top (s : stack) : int =
+    match s with
+    | [] -> raise EmptyStack
+    | hd :: tl -> hd
 
     (* pop s -- Returns a stack with the topmost element from s
        removed, raising the EmptyStack exception if there is no
        element to be removed. *)
-    let pop (s : stack) : stack = failwith "not implemented"
+    let pop (s : stack) : stack =
+    match s with
+    | [] -> raise EmptyStack
+    | hd :: tl -> tl
   end ;;
 
 (* Now let's use this implementation and consider some implications.
@@ -85,14 +91,14 @@ order.
 ......................................................................*)
 
 let small_stack () : IntListStack.stack =
-  failwith "not implemented" ;;
+  IntListStack.push 1 (IntListStack.push 5 IntListStack.empty) ;;
 
 (*......................................................................
 Exercise 3C: Now, use `IntListStack` functions to write an expression that
 defines `last_el` as the value of the topmost element from `small_stack`.
 ......................................................................*)
 
-let last_el = 0 ;;
+let last_el = IntListStack.top (small_stack ()) ;;
 
 (* Based on our requirements above, what should the value `last_el` be?
 
@@ -113,7 +119,7 @@ methods*.
 ......................................................................*)
 
 let invert_stack (s : IntListStack.stack) : IntListStack.stack =
-  failwith "not implemented" ;;
+  List.rev s ;;
 
 (* Now what would be the result of the top operation on a stack
 inverted with `invert_stack`? Let's try it.
@@ -124,7 +130,7 @@ top value from `small_stack` inverted with `invert_stack` and name the
 result `bad_el`.
 ......................................................................*)
 
-let bad_el = 0 ;;
+let bad_el = IntListStack.top (invert_stack (small_stack ()));;
 
 (* This is bad. We have broken through the *abstraction barrier*
 defined by the `IntListStack` module. You may wonder: "if I know that
@@ -163,6 +169,24 @@ list`, even though that's the type you used in your implementation.
 
 module type INT_STACK =
   sig
+    exception EmptyStack
+    type stack
+
+    (* empty -- An empty stack *)
+    val empty : stack
+
+    (* push i s -- Adds an integer element i to the top of stack s *)
+    val push : int -> stack -> stack
+
+    (* top s -- Returns the value of the topmost element on stack s,
+       raising the EmptyStack exception if there is no element to be
+       returned. *)
+    val top : stack -> int
+
+    (* pop s -- Returns a stack with the topmost element from s
+       removed, raising the EmptyStack exception if there is no
+       element to be removed. *)
+    val pop : stack -> stack
     (* ... your specification of the signature goes here ... *)
   end ;;
 
@@ -183,4 +207,5 @@ perform list operations directly on it, which means the stack
 preserves its abstraction barrier.
 ......................................................................*)
 
-let safe_stack () = failwith "not implemented" ;;
+let safe_stack () = SafeIntListStack.push 1
+  (SafeIntListStack.push 5 SafeIntListStack.empty) ;;
